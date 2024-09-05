@@ -23,6 +23,7 @@ app.use(fileUpload({useTempFiles:true}))
 
 //To get data as Object
 app.use(express.urlencoded({extended:false}))
+app.use(express.json({limit:"16kb"}))
 
 // const connectDb = require('./db/dbcon.js');
 // connectDb();
