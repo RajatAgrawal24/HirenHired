@@ -9,7 +9,7 @@ const contactSchema= new mongoose.Schema({
         required:true,
         unique:true
     },
-    subject:String,
+    subject:{type:String},
     message:{
         type:String,
         required:true

@@ -1,5 +1,7 @@
 const mongoose= require('mongoose')
-const ClientSchema= new mongoose.Schema({
+const jwt= require('jsonwebtoken')
+const bcrypt= require('bcrypt')
+const clientSchema= new mongoose.Schema({
     username:{
         type:String,
         required:true,
@@ -44,6 +46,48 @@ const ClientSchema= new mongoose.Schema({
     }
 },{timestamps:true})
 
- const Client= new mongoose.model('Client',contactSchema) 
+clientSchema.pre("save",async function(next){
+    if(!this.isModified("password")) return next();
 
- module.exports= Contact
+    this.password =await bcrypt.hash(this.password,10)
+    next()
+})
+
+clientSchema.methods.isPasswordCorrect= async function(password){
+    return await bcrypt.compare(password,this.password)
+    // return true or false
+}
+
+clientSchema.methods.generateAccessToken= function(){
+    return jwt.sign(
+        {
+            _id:this._id,
+            email:this.email,
+            username:this.username,
+            fullName:this.fullName
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn:process.env.ACCESS_TOKEN_EXPIRY
+        }
+    )
+}
+
+clientSchema.methods.generateRefreshToken= function(){
+    return jwt.sign(
+        {
+            _id:this._id,
+
+        },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+            expiresIn:process.env.REFRESH_TOKEN_EXPIRY
+        }
+    )
+}
+
+
+
+ const Client= new mongoose.model('Client',clientSchema) 
+
+ module.exports= Client

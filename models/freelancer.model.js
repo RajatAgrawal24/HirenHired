@@ -1,19 +1,18 @@
 const mongoose= require('mongoose')
-
-const freelancerSchema= new mongoose.Schema(
+const jwt= require('jsonwebtoken')
+const bcrypt= require('bcrypt')
+const experienceSchema= new mongoose.Schema(
     {
         company:{
-            type:String,
-            required:true,
+            type:String,        
             unique:true
         },
         years:{
-            type:Number,
-            required:true
+            type:Number,  
         }
     }
 )
-const FreelancerSchema= new mongoose.Schema({
+const freelancerSchema= new mongoose.Schema({
     username:{
         type:String,
         required:true,
@@ -26,7 +25,7 @@ const FreelancerSchema= new mongoose.Schema({
         type:String,
         required:[true,"fullname field is mandatory"],
         trim:true,
-        index:true  
+        
     },
     email:{
         type:String,
@@ -58,6 +57,11 @@ const FreelancerSchema= new mongoose.Schema({
     experience:[
         experienceSchema
     ],
+    certification:[
+        {
+            type:String
+        }
+    ],
     location:{
         type:String,
         required:true
@@ -65,6 +69,48 @@ const FreelancerSchema= new mongoose.Schema({
  
 },{timestamps:true})
 
- const Freelancer= new mongoose.model('Freelancer',contactSchema) 
+freelancerSchema.pre("save",async function(next){
+    if(!this.isModified("password")) return next();
 
- module.exports= Contact
+    this.password =await bcrypt.hash(this.password,10)
+    next()
+})
+
+freelancerSchema.methods.isPasswordCorrect= async function(password){
+    return await bcrypt.compare(password,this.password)
+    // return true or false
+}
+
+freelancerSchema.methods.generateAccessToken= function(){
+    return jwt.sign(
+        {
+            _id:this._id,
+            email:this.email,
+            username:this.username,
+            fullName:this.fullName
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn:process.env.ACCESS_TOKEN_EXPIRY
+        }
+    )
+}
+
+freelancerSchema.methods.generateRefreshToken= function(){
+    return jwt.sign(
+        {
+            _id:this._id,
+
+        },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+            expiresIn:process.env.REFRESH_TOKEN_EXPIRY
+        }
+    )
+}
+
+
+
+ const Freelancer= new mongoose.model('Freelancer',freelancerSchema) 
+
+ module.exports= Freelancer

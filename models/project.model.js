@@ -30,6 +30,6 @@ const projectSchema= new mongoose.Schema({
     
 },{timestamps:true})
 
- const Project= new mongoose.model('Project',contactSchema) 
+ const Project= new mongoose.model('Project',projectSchema) 
 
- module.exports= Contact
+ module.exports= Project
