@@ -56,4 +56,10 @@ const info= await transporter.sendMail(mailOptions, (error, info) => {
 
 }
 
+
  module.exports= ContactController
+
+
+
+
+
