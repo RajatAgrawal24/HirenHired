@@ -6,17 +6,18 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY, 
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
+const uniquePublicId = `${Date.now()}`;
 
     const uploadOnCloudinary= async (localFilePath)=>{
         try{
             if(!localFilePath) return null
             
             
-            const response= await cloudinary.uploader.upload(localFilePath,{  
-                resource_type:"auto" 
-            })
+            const response= await cloudinary.uploader.upload(localFilePath,{public_id:uniquePublicId,
+                resource_type:"auto" }
+           )
 
-            console.log("File is uploaded on cloudinary",response.url)
+            // console.log("File is uploaded on cloudinary",response.url)
             fs.unlinkSync(localFilePath)
             return response;
         }

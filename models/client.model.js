@@ -14,7 +14,7 @@ const clientSchema= new mongoose.Schema({
         type:String,
         required:[true,"fullname field is mandatory"],
         trim:true,
-        index:true  
+        
     },
     email:{
         type:String,

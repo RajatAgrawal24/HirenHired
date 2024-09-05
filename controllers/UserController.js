@@ -35,54 +35,44 @@ const generateAccessAndRefreshTokenClient=async(userId)=>{
 class UserController{
 static freelancerRegister= async(req,res,next)=>{
     try{
-        console.log("1st error")
-        const {username,email,password,fullName,skills,portfolio, location }=req.body
+        
+        let {username,email,password,fullName,skills,portfolio, location,certification }=req.body
 
         if(
             [username,email,password,fullName,location].some((field)=> field==null || field.trim()==="")
         ){
-            return res.send({success:false})
+            return res.send({success:false,message:"Required fields empty"})
         }
         if(!skills){
-            return res.send({success:false})
+            return res.send({success:false,message:"Skills not present"})
         }
         if(!Array.isArray(skills)){
             skills =[skills]
         }
         if(skills.length===0){
-            return res.send({success:false})
+            return res.send({success:false,message:"Skills array is empty"})
         }
 
         const existingUser= await Freelancer.findOne({
             $or:[{email},{username:username.toLowerCase()}]
         })
         if(existingUser){
-            return res.send({success:false})
+            return res.send({success:false,message:"User also exists"})
         }
 
-        if(req.files==null || req.files.length===0){
-            return res.send({success:false})
+        if(req.file==null || Object.keys(req.file).length===0){
+            return res.send({success:false,message:"Avatar is mandatory"})
         }
-        const avatarLocalPath=req.files?.avatar?.[0].path
+        const avatarLocalPath=req.file?.path
         if(!avatarLocalPath){
-            return res.send({success:false})
+            return res.send({success:false,message:"Local file path of avatar is absent"})
         }
         const avatar= await uploadOnCloudinary(avatarLocalPath)
         if(!avatar)
             {
-                return res.send({success:false})
+                return res.send({success:false,message:"Avatar not uploaded in cloudinary"})
             }
-            
-            let cloudinaryArray = [];
-            const certificateArray = req.files.certification || [];
-
-            if (certificateArray.length !== 0) {
-                const pathArray = certificateArray.map((file) => file.path).filter((path) => path != null);
-                if (pathArray.length !== 0) {
-                    cloudinaryArray = await Promise.all(pathArray.map(async (path) => await uploadOnCloudinary(path)));
-                    cloudinaryArray = cloudinaryArray.filter((upload) => upload != null);
-                }
-            }
+           
     
         const registeredUser=await Freelancer.create({
            username: username.toLowerCase(),
@@ -93,11 +83,11 @@ static freelancerRegister= async(req,res,next)=>{
            location,
            portfolio:portfolio?.trim() || "", 
            avatar:avatar.url,
-           certification: cloudinaryArray.length===0? [] : cloudinaryArray
+           certification: certification?.trim() || ""
         })
 
         if(!registeredUser){
-            return res.send({success:false})
+            return res.send({success:false,message:"Freelancer not registered in database"})
         }
 
         return res.status(201).send({success:true,message:"Freelancer registered successfully"})
@@ -106,10 +96,9 @@ static freelancerRegister= async(req,res,next)=>{
 
     catch(err){
         console.log(err)
-       
-    }
+        return res.send({success:false,message:"Error while registering freelancer"})
 }
-
+}
 static clientRegister= async(req,res,next)=>{
 try{
     const {username,email,password,fullName,companyName, location }=req.body
@@ -117,35 +106,35 @@ try{
     if(
         [username,email,password,fullName,location,companyName].some((field)=> field==null || field.trim()==="")
     ){
-        console.log("Missing field")
-        return res.send({success:false})
+       
+        
+        return res.send({success:false,message:"Required fields empty"})
        
     }
-    const existingUser= await Freelancer.findOne({
+    const existingUser= await Client.findOne({
         $or:[{email},{username:username.toLowerCase()}]
     })
     if(existingUser){
-        console.log("User already exists")
-        return res.send({success:false})
+        
+        return res.send({success:false,message:"User also exists"})
        
     }
     if(req.file==null || Object.keys(req.file).length===0){
-        console.log("Upload image")
-        return res.send({success:false})
+        
+        return res.send({success:false,message:"Avatar is mandatory"})
         
     }
     const avatarLocalPath=req.file?.path
     if(!avatarLocalPath){
-        console.log("Local Path does not exist")
-        return res.send({success:false})
+     
+        return res.send({success:false,message:"Local file path of avatar is absent"})
         
     }
     const avatar= await uploadOnCloudinary(avatarLocalPath)
     console.log(avatar)
     if(!avatar)
         {
-            console.log("Cannot upload on cloudinary")
-            return res.send({success:false})
+            return res.send({success:false,message:"Avatar not uploaded in cloudinary"})
            
         }
 
@@ -162,7 +151,7 @@ try{
 
         if(!registeredUser){
             console.log("Error while storing in database")
-            return res.send({success:false})
+            return res.send({success:false,message:"Client not registered in database"})
             
         }
 
@@ -171,19 +160,21 @@ try{
 }
 catch(error){
     console.log(error)
+    return res.send({success:false,message:"Error while registering Client"})
+}
+
        
 }
-}
+
 
 static freelancerLogin= async(req,res,next)=>{
 try{
-
 
 const {email,username,password}=req.body
 
 if(!email || !username)        
   {
-    return res.send({success:false})
+    return res.send({success:false,message:"email and username are compulsory"})
   }
 
 const user=await Freelancer.findOne({
@@ -192,15 +183,16 @@ const user=await Freelancer.findOne({
 
 if(!user)
 {
-    return res.send({success:false})
+     return res.send({success:false,message:"Freelancer not registered"})
 }
 
 if(!password){
-    return res.send({success:false})
+    
+    return res.send({success:false,message:"Password is mandatory"})
 }
 const isPasswordValid=await user.isPasswordCorrect(password);
 if(!isPasswordValid){
-    return res.send({success:false})
+    return res.send({success:false,message:"Password is incorrect"})
 }
 
 const {accessToken,refreshToken}=await generateAccessAndRefreshTokenFreelancer(user._id)
@@ -216,16 +208,14 @@ return res
 .cookie("accessToken",accessToken,options)
 .cookie("refreshToken",refreshToken,options)
 .send(
-  200,
   {
-    user:loggedUser,accessToken,refreshToken
-  },
-  "User logged in successfully"
+    user:loggedUser,accessToken,refreshToken,message:"Freelancer logged in successfully"
+  }
 )
 }
 catch(error){
-    console.log(error)
-    return res.send({success:false})
+
+    return res.send({success:false,message:"Error while loggin in the freelancer"})
 }
 }
 static clientLogin= async(req,res,next)=>{
@@ -236,7 +226,7 @@ static clientLogin= async(req,res,next)=>{
         
         if(!email || !username)        
           {
-            return res.send({success:false})
+            return res.send({success:false,message:"email and username are compulsory"})
           }
         
         const user=await Client.findOne({
@@ -245,16 +235,19 @@ static clientLogin= async(req,res,next)=>{
         
         if(!user)
         {
-            return res.send({success:false})
+            return res.send({success:false,message:"Freelancer not registered"})
         }
         
+        
         if(!password){
-            return res.send({success:false})
+            return res.send({success:false,message:"Password is mandatory"})
         }
+        
         const isPasswordValid=await user.isPasswordCorrect(password);
         if(!isPasswordValid){
-            return res.send({success:false})
+            return res.send({success:false,message:"Password is incorrect"})
         }
+        
         
         const {accessToken,refreshToken}=await generateAccessAndRefreshTokenClient(user._id)
         
@@ -269,16 +262,16 @@ static clientLogin= async(req,res,next)=>{
         .cookie("accessToken",accessToken,options)
         .cookie("refreshToken",refreshToken,options)
         .send(
-          200,
+         
           {
-            user:loggedUser,accessToken,refreshToken
-          },
-          "User logged in successfully"
+            user:loggedUser,accessToken,refreshToken,message:"Client logged in successfully"
+          }
+         
         )
         }
         catch(error){
-            console.log(error)
-            return res.send({success:false})
+           
+            return res.send({success:false,message:"Error while loggin in the Client"})
         }
 }
 

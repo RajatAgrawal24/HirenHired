@@ -1,30 +1,18 @@
 const mongoose= require('mongoose')
 const jwt= require('jsonwebtoken')
 const bcrypt= require('bcrypt')
-const experienceSchema= new mongoose.Schema(
-    {
-        company:{
-            type:String,        
-            unique:true
-        },
-        years:{
-            type:Number,  
-        }
-    }
-)
+
 const freelancerSchema= new mongoose.Schema({
     username:{
         type:String,
         required:true,
         lowercase:true,
         unique:true,
-        trim:true,
         index:true
     },
     fullName:{
         type:String,
-        required:[true,"fullname field is mandatory"],
-        trim:true,
+        required:[true,"fullname field is mandatory"]
         
     },
     email:{
@@ -53,18 +41,18 @@ const freelancerSchema= new mongoose.Schema({
         }
     ],
     portfolio:String,
-
-    experience:[
-        experienceSchema
-    ],
-    certification:[
+    certification:
         {
             type:String
         }
-    ],
+    ,
     location:{
         type:String,
         required:true
+    },
+    role:{
+        type:String,
+        default:"Freelancer"
     }
  
 },{timestamps:true})
