@@ -16,7 +16,8 @@ class ContactController{
             message
         })
         if(!contactUser){
-            return res.send({success:false})
+            console.log("error")
+            return res.json({success:false})
         }
 
         
