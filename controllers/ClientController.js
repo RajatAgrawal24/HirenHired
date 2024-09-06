@@ -4,13 +4,15 @@ const Freelancer = require('../models/freelancer.model');
 const Work = require('../models/work.model');
 const uploadOnCloudinary = require('../utils/cloudinary');
 
+
+class clientController {
 // Render Dashboard Page
-const getDashboardPage = (req, res) => {
+static getDashboardPage = (req, res) => {
     res.render('clientDashboard');
 };
 
 // Get Client Profile
-const getClientProfile = async (req, res) => {
+static getClientProfile = async (req, res) => {
     try {
         const client = await Client.findById(req.user._id).select('-password -refreshToken');
         res.json(client);
@@ -21,7 +23,7 @@ const getClientProfile = async (req, res) => {
 };
 
 // Get Nearby Freelancers
-const getNearbyFreelancers = async (req, res) => {
+static getNearbyFreelancers = async (req, res) => {
     const { location } = req.query;
     try {
         // Simple location-based filtering. For more accurate results, consider geospatial queries.
@@ -34,7 +36,7 @@ const getNearbyFreelancers = async (req, res) => {
 };
 
 // Post New Work
-const postWork = async (req, res) => {
+static postWork = async (req, res) => {
     const { title, description } = req.body;
     if (!title || title.trim() === '') {
         return res.status(400).json({ success: false, message: 'Title is required' });
@@ -54,7 +56,7 @@ const postWork = async (req, res) => {
 };
 
 // Get Client's Work Listings
-const getClientWorks = async (req, res) => {
+static getClientWorks = async (req, res) => {
     try {
         const works = await Work.find({ clientId: req.user._id }).populate('assignedFreelancer', 'fullName username email avatar');
         res.json(works);
@@ -63,11 +65,12 @@ const getClientWorks = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
-
-module.exports = {
-    getDashboardPage,
-    getClientProfile,
-    getNearbyFreelancers,
-    postWork,
-    getClientWorks
-};
+}
+// module.exports = {
+//     getDashboardPage,
+//     getClientProfile,
+//     getNearbyFreelancers,
+//     postWork,
+//     getClientWorks
+// };
+module.exports= clientController
