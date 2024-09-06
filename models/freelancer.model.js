@@ -52,6 +52,11 @@ const freelancerSchema = new mongoose.Schema(
       type: String,
       default: "Freelancer",
     },
+    availability:{
+      type:Number,
+      enum:[0,1],
+      default:1
+    }
   },
   { timestamps: true }
 );
