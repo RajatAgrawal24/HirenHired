@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e6e6f2; /* Light purplish background color */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background-color: #ffffff; /* White background for cards */
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+           
+        }
+        .card-title {
+            font-size: 1.5rem;
+            color: #6a0dad; /* Purplish color for titles */
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            background-color: #6a0dad; /* Purplish button color */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: #ffffff;
+            margin: 5px;
+        }
+        .btn-primary:hover {
+            background-color: #cfade2; /* Darker purplish color for hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Signup Section -->
+        <div class="card">
+            <h2 class="card-title">Signup</h2>
+            <a href="/signup/client" class="btn btn-primary">Signup as Client</a>
+            <a href="/signup/freelancer" class="btn btn-primary">Signup as Freelancer</a>
+        </div>
+
+        <!-- Login Section -->
+        <div class="card">
+            <h2 class="card-title">Login</h2>
+            <a href="/login/client" class="btn btn-primary">Login as Client</a>
+            <a href="/login/freelancer" class="btn btn-primary">Login as Freelancer</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
