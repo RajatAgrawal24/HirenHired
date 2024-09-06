@@ -278,14 +278,6 @@ static clientLogin= async(req,res,next)=>{
             
         }
 }
-static getDashboardPage= async(req,res,next)=>{
-    try{
-        res.render('freelancerDashboard')
-    }
-    catch(err){
-        console.log(err)
-    }
-}
 
 }
 module.exports= UserController

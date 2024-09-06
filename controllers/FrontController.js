@@ -9,7 +9,7 @@ class FrontController {
 
     static contact = async (req, res) => {
         try{
-            res.render('contact');
+            res.render('contact',{user:null});
         }catch(err){
             console.log(err);
         }

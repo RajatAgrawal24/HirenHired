@@ -1,5 +1,3 @@
-// controllers/FreelancerController.js
-
 const Freelancer = require('../models/freelancer.model');
 const Work = require('../models/work.model');
 

@@ -33,11 +33,8 @@ router.post('/login/freelancer',UserController.freelancerLogin)
 router.post('/login/client',UserController.clientLogin)
 
 // Dashboard page
-router.get('/dashboard', clientController.getDashboardPage);
-router.get('/home', FreelancerController.getDashboardPage);
 router.get('/dashboard/client', clientController.getDashboardPage);
-router.get('/dashboard/freelancer', UserController.getDashboardPage);
-
+router.get('/dashboard/freelancer', FreelancerController.getDashboardPage);
 
 // API endpoints
 router.get('/client/profile', clientController.getClientProfile);
