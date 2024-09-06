@@ -27,7 +27,7 @@ class FreelancerController {
     //   );
 
       // Render the dashboard template with the freelancer's data and analytics
-      res.render('freelancerDashboard', {
+      res.render('freelancersDashboard', {
         // freelancer,
         // totalEarnings,
         // workStatusCounts,
