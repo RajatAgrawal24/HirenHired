@@ -15,6 +15,14 @@ const WorkSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    category: {
+        type: String,
+        required: true
+    },
+    duration : {
+        type: Number,
+        required: true
+    },
     status: {
         type: String,
         enum: ['Open', 'In Progress', 'Completed'],

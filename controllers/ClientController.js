@@ -35,7 +35,7 @@ const getNearbyFreelancers = async (req, res) => {
 
 // Post New Work
 const postWork = async (req, res) => {
-    const { title, description } = req.body;
+    const { title, category, description, duration } = req.body;
     if (!title || title.trim() === '') {
         return res.status(400).json({ success: false, message: 'Title is required' });
     }
@@ -43,7 +43,9 @@ const postWork = async (req, res) => {
         const newWork = new Work({
             clientId: req.user._id,
             title: title.trim(),
-            description: description ? description.trim() : ''
+            category: category.trim(),
+            description: description ? description.trim() : '',
+            duration: duration
         });
         await newWork.save();
         res.status(201).json(newWork);

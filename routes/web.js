@@ -11,6 +11,7 @@ const checkUserAuth = require('../middleware/auth');
 const clientController = require('../controllers/ClientController');
 // Middleware to authenticate and set req.user
 const authenticate = require('../middleware/authenticate'); 
+const FreelancerController = require('../controllers/FreelancerController.js');
 
 // Apply authentication middleware to all routes in this router
 // router.use(authenticate);
@@ -26,6 +27,7 @@ router.post('/login/client',UserController.clientLogin)
 
 // Dashboard page
 router.get('/dashboard', clientController.getDashboardPage);
+router.get('/home', FreelancerController.getDashboardPage);
 
 // API endpoints
 router.get('/client/profile', clientController.getClientProfile);
