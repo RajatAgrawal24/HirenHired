@@ -13,7 +13,6 @@ const freelancerSchema= new mongoose.Schema({
     fullName:{
         type:String,
         required:[true,"fullname field is mandatory"]
-        
     },
     email:{
         type:String,

@@ -6,7 +6,9 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY, 
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
 const uniquePublicId = `${Date.now()}`;
+
 
     const uploadOnCloudinary= async (localFilePath)=>{
         try{
@@ -18,6 +20,7 @@ const uniquePublicId = `${Date.now()}`;
            )
 
             // console.log("File is uploaded on cloudinary",response.url)
+
             fs.unlinkSync(localFilePath)
             return response;
         }

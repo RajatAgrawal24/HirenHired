@@ -72,7 +72,6 @@ static freelancerRegister= async(req,res,next)=>{
             {
                 return res.send({success:false,message:"Avatar not uploaded in cloudinary"})
             }
-           
     
         const registeredUser=await Freelancer.create({
            username: username.toLowerCase(),
@@ -88,6 +87,7 @@ static freelancerRegister= async(req,res,next)=>{
 
         if(!registeredUser){
             return res.send({success:false,message:"Freelancer not registered in database"})
+
         }
 
         return res.status(201).send({success:true,message:"Freelancer registered successfully"})
@@ -166,7 +166,6 @@ catch(error){
        
 }
 
-
 static freelancerLogin= async(req,res,next)=>{
 try{
 
@@ -183,6 +182,7 @@ const user=await Freelancer.findOne({
 
 if(!user)
 {
+
      return res.send({success:false,message:"Freelancer not registered"})
 }
 
@@ -193,6 +193,7 @@ if(!password){
 const isPasswordValid=await user.isPasswordCorrect(password);
 if(!isPasswordValid){
     return res.send({success:false,message:"Password is incorrect"})
+
 }
 
 const {accessToken,refreshToken}=await generateAccessAndRefreshTokenFreelancer(user._id)
@@ -247,7 +248,6 @@ static clientLogin= async(req,res,next)=>{
         if(!isPasswordValid){
             return res.send({success:false,message:"Password is incorrect"})
         }
-        
         
         const {accessToken,refreshToken}=await generateAccessAndRefreshTokenClient(user._id)
         
