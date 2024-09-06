@@ -28,7 +28,7 @@ const web = require('./routes/web');
 
 //To get data as Object
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
-app.use(express.json({limit:"16kb"}))
+app.use(express.json())
 
 // const connectDb = require('./db/dbcon.js');
 // connectDb();
@@ -37,7 +37,7 @@ app.use(express.static('public'));
 
 app.set('view engine', 'ejs');
 
-app.use('/',web);
+app.use('/api',web);
 app.use(cookieParser())
 
 connectDB()
