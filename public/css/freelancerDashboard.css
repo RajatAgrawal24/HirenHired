@@ -1,0 +1,15 @@
+/* custom styles */
+.avatar {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .table {
+    margin-top: 20px;
+  }
+  
+  iframe {
+    margin-top: 30px;
+  }
+  

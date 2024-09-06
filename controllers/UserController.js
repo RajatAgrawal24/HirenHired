@@ -13,10 +13,12 @@ const generateAccessAndRefreshTokenFreelancer=async(userId)=>{
       await user.save({validateBeforeSave: false})
       return {accessToken,refreshToken}
     }
-    catch(error){
-        return res.send({success:false})
+    catch(err){
+        console.log(err.message)
+        res.redirect(`/login/freelancer?error=${err.message}`)
     }
-   }
+    }
+   
 const generateAccessAndRefreshTokenClient=async(userId)=>{  
     try{
       const user=await Client.findById(userId)
@@ -27,61 +29,51 @@ const generateAccessAndRefreshTokenClient=async(userId)=>{
       await user.save({validateBeforeSave: false})
       return {accessToken,refreshToken}
     }
-    catch(error){
-        return res.send({success:false})
+    catch(err){
+        console.log(err.message)
+        res.redirect(`/login/freelancer?error=${err.message}`)
     }
    }
   
 class UserController{
 static freelancerRegister= async(req,res,next)=>{
     try{
-        console.log("1st error")
-        const {username,email,password,fullName,skills,portfolio, location }=req.body
+        
+        let {username,email,password,fullName,skills,portfolio, location,certification }=req.body
 
         if(
             [username,email,password,fullName,location].some((field)=> field==null || field.trim()==="")
         ){
-            return res.send({success:false})
+            throw new Error("Required fields empty")
         }
         if(!skills){
-            return res.send({success:false})
+            throw new Error("Skills field is empty")
         }
         if(!Array.isArray(skills)){
             skills =[skills]
         }
         if(skills.length===0){
-            return res.send({success:false})
+            throw new Error("No skill specified")
         }
 
         const existingUser= await Freelancer.findOne({
             $or:[{email},{username:username.toLowerCase()}]
         })
         if(existingUser){
-            return res.send({success:false})
+            throw new Error("Freelancer with specified email or username already exists")
         }
 
-        if(req.files==null || req.files.length===0){
-            return res.send({success:false})
+        if(req.file==null || Object.keys(req.file).length===0){
+            throw new Error("Avatar is required")
         }
-        const avatarLocalPath=req.files?.avatar?.[0].path
+        const avatarLocalPath=req.file?.path
         if(!avatarLocalPath){
-            return res.send({success:false})
+            throw new Error("Avatar is required")
         }
         const avatar= await uploadOnCloudinary(avatarLocalPath)
         if(!avatar)
             {
-                return res.send({success:false})
-            }
-            
-            let cloudinaryArray = [];
-            const certificateArray = req.files.certification || [];
-
-            if (certificateArray.length !== 0) {
-                const pathArray = certificateArray.map((file) => file.path).filter((path) => path != null);
-                if (pathArray.length !== 0) {
-                    cloudinaryArray = await Promise.all(pathArray.map(async (path) => await uploadOnCloudinary(path)));
-                    cloudinaryArray = cloudinaryArray.filter((upload) => upload != null);
-                }
+                throw new Error("Avtar could not be uploaded, upload again")
             }
     
         const registeredUser=await Freelancer.create({
@@ -93,23 +85,22 @@ static freelancerRegister= async(req,res,next)=>{
            location,
            portfolio:portfolio?.trim() || "", 
            avatar:avatar.url,
-           certification: cloudinaryArray.length===0? [] : cloudinaryArray
+           certification: certification?.trim() || ""
         })
 
         if(!registeredUser){
-            return res.send({success:false})
+            throw new Error("Could not register")
+
         }
 
-        return res.status(201).send({success:true,message:"Freelancer registered successfully"})
-
+        res.redirect('/login/freelancer')
     }
 
     catch(err){
         console.log(err)
-       
-    }
+         res.redirect(`/signup/freelancer?error=${err.message}`)
 }
-
+}
 static clientRegister= async(req,res,next)=>{
 try{
     const {username,email,password,fullName,companyName, location }=req.body
@@ -117,35 +108,35 @@ try{
     if(
         [username,email,password,fullName,location,companyName].some((field)=> field==null || field.trim()==="")
     ){
-        console.log("Missing field")
-        return res.send({success:false})
+       
+        
+        throw new Error("Required fields empty")
        
     }
-    const existingUser= await Freelancer.findOne({
+    const existingUser= await Client.findOne({
         $or:[{email},{username:username.toLowerCase()}]
     })
     if(existingUser){
-        console.log("User already exists")
-        return res.send({success:false})
+        
+        throw new Error("Client with specified email or username already exists")
        
     }
     if(req.file==null || Object.keys(req.file).length===0){
-        console.log("Upload image")
-        return res.send({success:false})
+        
+        throw new Error("Avatar is required")
         
     }
     const avatarLocalPath=req.file?.path
     if(!avatarLocalPath){
-        console.log("Local Path does not exist")
-        return res.send({success:false})
+     
+        throw new Error("Avtar could not be uploaded, upload again")
         
     }
     const avatar= await uploadOnCloudinary(avatarLocalPath)
     console.log(avatar)
     if(!avatar)
         {
-            console.log("Cannot upload on cloudinary")
-            return res.send({success:false})
+            throw new Error("Avtar could not be uploaded, upload again")
            
         }
 
@@ -161,29 +152,29 @@ try{
         })
 
         if(!registeredUser){
-            console.log("Error while storing in database")
-            return res.send({success:false})
+            throw new Error("Could not register")
             
         }
 
-        return res.status(201).send({success:true,message:"Client registered successfully"})
+        res.redirect('/login/client')
         
 }
-catch(error){
-    console.log(error)
-       
+catch(err){
+    console.log(err)
+    res.redirect(`/signup/client?error=${err.message}`)
 }
+
+       
 }
 
 static freelancerLogin= async(req,res,next)=>{
 try{
 
-
 const {email,username,password}=req.body
 
-if(!email || !username)        
+if(!email || !username || email.trim()==="" || username.trim()==="")        
   {
-    return res.send({success:false})
+    throw new Error("Email and username are mandatory")
   }
 
 const user=await Freelancer.findOne({
@@ -192,15 +183,18 @@ const user=await Freelancer.findOne({
 
 if(!user)
 {
-    return res.send({success:false})
+    throw new Error("You are not registered")
+     
 }
 
-if(!password){
-    return res.send({success:false})
+if(!password || password.trim()===""){
+    
+    throw new Error("Password field is required")
 }
 const isPasswordValid=await user.isPasswordCorrect(password);
 if(!isPasswordValid){
-    return res.send({success:false})
+    throw new Error("Password is incorrect")
+
 }
 
 const {accessToken,refreshToken}=await generateAccessAndRefreshTokenFreelancer(user._id)
@@ -211,21 +205,22 @@ const options={
   httpOnly:true,
   secure:true         
 }
+
 return res
 .status(200)
 .cookie("accessToken",accessToken,options)
 .cookie("refreshToken",refreshToken,options)
-.send(
-  200,
-  {
-    user:loggedUser,accessToken,refreshToken
-  },
-  "User logged in successfully"
-)
+.redirect('/dashboard/freelancer')
 }
-catch(error){
-    console.log(error)
-    return res.send({success:false})
+catch(err){
+
+    console.log(err.message)
+    if(err.message==="Password field is required" || err.message==="Email and username are mandatory"){
+    res.redirect(`/login/freelancer?error=${err.message}`)
+}
+    else if(err.message==="Password is incorrect" || err.message==="You are not registered"){
+    res.redirect(`/signup/freelancer?error=${err.message}`)
+}
 }
 }
 static clientLogin= async(req,res,next)=>{
@@ -236,7 +231,7 @@ static clientLogin= async(req,res,next)=>{
         
         if(!email || !username)        
           {
-            return res.send({success:false})
+            throw new Error("Email and username are mandatory")
           }
         
         const user=await Client.findOne({
@@ -245,15 +240,16 @@ static clientLogin= async(req,res,next)=>{
         
         if(!user)
         {
-            return res.send({success:false})
+            throw new Error("You are not registered")
         }
         
+        
         if(!password){
-            return res.send({success:false})
+            throw new Error("Password field is required")
         }
         const isPasswordValid=await user.isPasswordCorrect(password);
         if(!isPasswordValid){
-            return res.send({success:false})
+            throw new Error("Password is incorrect")
         }
         
         const {accessToken,refreshToken}=await generateAccessAndRefreshTokenClient(user._id)
@@ -268,17 +264,18 @@ static clientLogin= async(req,res,next)=>{
         .status(200)
         .cookie("accessToken",accessToken,options)
         .cookie("refreshToken",refreshToken,options)
-        .send(
-          200,
-          {
-            user:loggedUser,accessToken,refreshToken
-          },
-          "User logged in successfully"
-        )
+        .redirect('/dashboard/client')
+        
         }
-        catch(error){
-            console.log(error)
-            return res.send({success:false})
+        catch(err){
+            console.log(err.message)
+            if(err.message==="Password field is required" || err.message==="Email and username are mandatory"){
+             res.redirect(`/login/client?error=${err.message}`)
+        }
+            else if(err.message==="Password is incorrect" || err.message==="You are not registered"){
+                res.redirect(`/signup/client?error=${err.message}`)
+        }
+            
         }
 }
 

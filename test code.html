@@ -1,0 +1,21 @@
+<!-- Code of freelancerDashboard -->
+
+<% freelancer.workInHand.forEach(work => { %>
+    <tr>
+        <td><%= work.title %></td>
+        <td><%= work.clientName %></td>
+        <td><%= work.status %></td>
+        <td><%= new Date(work.deadline).toLocaleDateString() %></td>
+        <td>$<%= work.earnings %></td>
+    </tr>
+<% }) %>
+
+<!-- Analytics Section -->
+<h3 class="mt-5">Analytics</h3>
+<p><strong>Total Earnings:</strong> $<%= totalEarnings %></p>
+<p><strong>Work Status:</strong></p>
+<ul>
+    <li>In Progress: <%= workStatusCounts['in progress'] %></li>
+    <li>Completed: <%= workStatusCounts['completed'] %></li>
+    <li>Pending: <%= workStatusCounts['pending'] %></li>
+</ul>
