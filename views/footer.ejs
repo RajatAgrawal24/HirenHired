@@ -102,5 +102,16 @@
 <script src="js/click-scroll.js"></script>
 <script src="js/custom.js"></script>
 
+<!-- google translator -->
+<script type="text/javascript">
+    function translateLanguage(lang) {
+        var translateSelect = document.querySelector('.goog-te-combo');
+        if (translateSelect) {
+            translateSelect.value = lang;
+            translateSelect.dispatchEvent(new Event('change'));
+        }
+    }
+</script>
+
 </body>
 </html>
